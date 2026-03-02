@@ -1,0 +1,10 @@
+# --- Core Agent Framework ---
+smolagents          # The "Reasoning Loop" and ToolCallingAgent logic
+openai              # OpenAI API client used by LLM class
+
+# --- Data Validation & Settings ---
+pydantic            # Data modeling and automated type checking
+python-dotenv       # Loads environment variables (API keys) from .env file
+
+# --- Development Tools ---
+ipykernel           # Allows running this code in Jupyter Notebooks/VS Code Interactive
