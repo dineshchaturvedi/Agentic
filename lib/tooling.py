@@ -1,3 +1,7 @@
+#This file is the "Translator". Its entire purpose is 
+# to look at a normal Python function and turn it into a JSON manual 
+# that OpenAI can understand.
+
 import inspect
 import datetime
 from typing import (
