@@ -1,3 +1,4 @@
+import json
 from typing import List, Optional, Dict, Any
 from openai import OpenAI
 from lib.messages import (
@@ -62,20 +63,36 @@ class LLM:
             raise ValueError(f"Invalid input type {type(input)}.")
     #In this context, the pipe symbol means "OR" you can pass in a string, 
     # a single BaseMessage, or a list of BaseMessages.
-    def invoke(self, input: str | BaseMessage | List[BaseMessage]) -> AIMessage:
+    def invoke(
+               self,
+               input: str | BaseMessage | List[BaseMessage],
+               response_format: Any = None) -> AIMessage:
         messages = self._convert_input(input)
         payload = self._build_payload(messages)
         # **payload is a way to unpack the dictionary into keyword arguments.
         # it looks for the keys in the payload dictionary and passes them as 
         # named arguments to the create method.
-        response = self.client.chat.completions.create(**payload)
+        if response_format:
+            payload.update({"response_format": response_format})
+            response = self.client.beta.chat.completions.parse(**payload)
+        else:
+            response = self.client.chat.completions.create(**payload)
         # The response object contains a list of choices, and we are 
         # taking the first one. OpenAI sends multiple choices for each request, 
         # but we are only interested in the first one.
         choice = response.choices[0]
         message = choice.message
 
+        content = message.content
+        parsed = getattr(message, "parsed", None)
+        if parsed is not None:
+            if hasattr(parsed, "model_dump"):
+                content = json.dumps(parsed.model_dump())
+            else:
+                content = json.dumps(parsed)
+
         return AIMessage(
-            content=message.content,
+            content=content,
             tool_calls=message.tool_calls
         )
+    
